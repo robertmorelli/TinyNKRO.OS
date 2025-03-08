@@ -2,3 +2,4 @@
 *.iso
 .zig-cache
 .vscode
+kernel.bin
