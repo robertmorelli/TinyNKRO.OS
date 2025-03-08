@@ -23,6 +23,7 @@ ziggy:
 
 	# Compile Zig sources using Zig's native build-obj
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) main.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
+	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) pagetables.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) console.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) string.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 
