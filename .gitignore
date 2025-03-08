@@ -1,2 +1,4 @@
 *.o
 *.iso
+.zig-cache
+.vscode
