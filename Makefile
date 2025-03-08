@@ -5,10 +5,6 @@ COMMON_FLAGS   = -fPIC
 INCLUDE_FLAGS  = -I.
 ZIG_EXTRA_FLAGS= -fno-stack-check -Drelease-fast
 
-# Assembler (NASM) and flags for .asm files
-NASM           = nasm
-NASM_FLAGS     = -f elf32
-
 # Linker and flags
 LD       = x86_64-elf-ld
 LD_FLAGS = -m elf_i386 -T linker.ld -o kernel.bin
@@ -16,21 +12,16 @@ LD_FLAGS = -m elf_i386 -T linker.ld -o kernel.bin
 # GRUB rescue tool
 GRUB_MKRESCUE = i686-elf-grub-mkrescue
 
-ziggy:
-	make clean
-	# Compile assembly library (GAS assembly) using Zig's build-obj
-	$(ZIG) $(TARGET_FLAGS) asm_lib.s $(COMMON_FLAGS)
-	$(ZIG) $(TARGET_FLAGS) multiboot_header.s $(COMMON_FLAGS)
+# sources
+ASM_SRCS := asm_lib.s multiboot_header.s boot.s
+ZIG_SRCS := main.zig pagetables.zig console.zig string.zig
 
-	# Compile Zig sources using Zig's native build-obj
-	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) main.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
-	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) pagetables.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
-	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) console.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
-	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) string.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
+%.o: %.s
+	$(ZIG) $(TARGET_FLAGS) $< $(COMMON_FLAGS)
+%.o: %.zig
+	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) $< $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 
-	# Assemble NASM sources (.asm)
-	$(NASM) $(NASM_FLAGS) boot.asm -o boot.o
-
+ziggy: $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o)
 	# Link the kernel binary
 	$(LD) $(LD_FLAGS) multiboot_header.o boot.o main.o console.o string.o asm_lib.o
 
