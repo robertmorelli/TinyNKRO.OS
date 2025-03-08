@@ -3,3 +3,5 @@
 .zig-cache
 .vscode
 kernel.bin
+kernel.bin
+build/*
