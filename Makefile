@@ -17,6 +17,7 @@ LD_FLAGS = -m elf_i386 -T linker.ld -o kernel.bin
 GRUB_MKRESCUE = i686-elf-grub-mkrescue
 
 ziggy:
+	make clean
 	# Compile assembly library (GAS assembly) using Zig's build-obj
 	$(ZIG) $(TARGET_FLAGS) asm_lib.s $(COMMON_FLAGS)
 
