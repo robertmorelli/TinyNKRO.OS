@@ -1,6 +1,6 @@
 const std = @import("std");
-const console = @import("/Users/robertmorelli/Desktop/myOS/zig/console.zig");
-const c = @import("/Users/robertmorelli/Desktop/myOS/zig/mmu.zig");
+const console = @import("console.zig");
+const c = @import("mmu.zig");
 
 // Global arrays from mmu.h, with proper alignment.
 var entry_pgtable1: [c.NPTENTRIES]c.pte_t align(c.PGSIZE) = undefined;
