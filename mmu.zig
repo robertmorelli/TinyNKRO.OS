@@ -1,3 +1,4 @@
+const std = @import("std");
 // Eflags register
 pub const FL_IF: u32 = 0x00000200;
 
@@ -15,7 +16,7 @@ pub const SEG_KDATA: u32 = 2; // kernel data+stack
 pub const NSEGS: u32 = 3;
 
 // GDT descriptor (packed)
-pub const gdtdesc = packed struct {
+pub const gdtdesctype = packed struct {
     limit: u16,
     base: u32,
 };
@@ -118,3 +119,36 @@ pub fn PTE_FLAGS(pte: u32) u32 {
 // Typedefs for page table/directory entries.
 pub const pte_t = u32;
 pub const pde_t = u32;
+const pagedirPointers = [NPDENTRIES]*[PGSIZE]u8;
+const pagedir = union { pointers: pagedirPointers, table: [NPDENTRIES]pde_t };
+const pagetablePointers = [NPDENTRIES][*]u8;
+const pagetable = union { pointers: pagetablePointers, table: [NPDENTRIES]pte_t };
+
+var gdt: [NSEGS]segdesc = std.mem.zeroes([NSEGS]segdesc);
+var gdtdesc: gdtdesc = gdtdesc{ .limit = @sizeOf(gdt) - 1, .base = &gdt[0] };
+
+const trs: [*]allowzero u8 = @ptrFromInt(0);
+pub var entry_pgtable1: pagetable align(PGSIZE) = make_pte: {
+    var result: pagetablePointers = undefined;
+    @setEvalBranchQuota(NPTENTRIES + 1);
+    for (0..NPTENTRIES) |i| {
+        result[i] = @as([*]u8, @ptrCast(&trs[((0x001000 * @as(u32, i)) | PTE_P | PTE_W)]));
+    }
+    break :make_pte .{ .pointers = result };
+};
+
+pub var entry_pgtable2: pagetable align(PGSIZE) = make_pte: {
+    var result: pagetablePointers = undefined;
+    @setEvalBranchQuota(NPTENTRIES + 1);
+    for (0..NPTENTRIES) |i| {
+        result[i] = @as([*]u8, @ptrCast(&trs[(0x80000 | (0x001000 * @as(u32, i)) | PTE_P | PTE_W)]));
+    }
+    break :make_pte .{ .pointers = result };
+};
+
+pub var entry_pgdir: pagedir align(PGSIZE) = make_pdt: {
+    var result: pagedirPointers = undefined;
+    result[0] = @ptrCast(&@as([*]u8, @ptrCast(&entry_pgtable1))[PTE_P | PTE_W]);
+    result[1] = @ptrCast(&@as([*]u8, @ptrCast(&entry_pgtable2))[PTE_P | PTE_W]);
+    break :make_pdt .{ .pointers = result };
+};
