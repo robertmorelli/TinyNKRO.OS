@@ -20,6 +20,7 @@ ziggy:
 	make clean
 	# Compile assembly library (GAS assembly) using Zig's build-obj
 	$(ZIG) $(TARGET_FLAGS) asm_lib.s $(COMMON_FLAGS)
+	$(ZIG) $(TARGET_FLAGS) multiboot_header.s $(COMMON_FLAGS)
 
 	# Compile Zig sources using Zig's native build-obj
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) main.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
@@ -28,7 +29,6 @@ ziggy:
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) string.zig $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 
 	# Assemble NASM sources (.asm)
-	$(NASM) $(NASM_FLAGS) multiboot_header.asm -o multiboot_header.o
 	$(NASM) $(NASM_FLAGS) boot.asm -o boot.o
 
 	# Link the kernel binary
