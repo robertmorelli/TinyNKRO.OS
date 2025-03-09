@@ -5,6 +5,7 @@ COMMON_FLAGS   = -fPIC
 INCLUDE_FLAGS  = -I.
 ZIG_EXTRA_FLAGS= -fno-stack-check -Drelease-fast -O ReleaseFast
 
+# soon -> https://github.com/ziglang/zig/issues/8755
 # Linker and flags
 LD       = x86_64-elf-ld
 LD_FLAGS = -m elf_i386 -T linker.ld -o kernel.bin
@@ -29,7 +30,7 @@ clean:
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) $< $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 
 kernel.bin: clean $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o)
-	$(LD) $(LD_FLAGS) $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o)
+	$(LD) $(LD_FLAGS) $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o) -o kernel.bin
 
 ziggy.iso: kernel.bin
 	mkdir -p build/isofiles/boot/grub/
