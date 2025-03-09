@@ -6,9 +6,9 @@ pub fn put_keys_on_screen() void {
     var y: u16 = 0;
     for (0..256) |i| {
         if (kb.key_state[i]) {
-            const ascii = kb.key_to_ascii(@as(u16, @intCast(i)));
+            const ascii = kb.key_to_ascii(@as(u8, @intCast(i)));
             if (ascii != 0) {
-                vga_new[y][x] = 0x400 | @as(u16, ascii);
+                vga_new[y][x] = 0x400 | ascii;
                 x += 1;
                 if (x == 80) {
                     x = 0;
