@@ -33,7 +33,7 @@ fn show_screen() void {
     std.mem.copyForwards([80]u16, &vga_new, &std.mem.zeroes(screen));
 }
 
-pub fn render_loop() void {
+pub fn render_loop() noreturn {
     while (true) {
         kb.update_key_state();
         put_keys_on_screen();

@@ -3,7 +3,7 @@ ZIG            = zig build-obj
 TARGET_FLAGS   = -target x86-freestanding -mcpu=i386
 COMMON_FLAGS   = -fPIC
 INCLUDE_FLAGS  = -I.
-ZIG_EXTRA_FLAGS= -fno-stack-check -Drelease-fast
+ZIG_EXTRA_FLAGS= -fno-stack-check -Drelease-fast -O ReleaseFast
 
 # Linker and flags
 LD       = x86_64-elf-ld
@@ -24,11 +24,12 @@ clean:
 
 %.o: %.s
 	$(ZIG) $(TARGET_FLAGS) $< $(COMMON_FLAGS)
+
 %.o: %.zig
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) $< $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 
 kernel.bin: clean $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o)
-	$(LD) $(LD_FLAGS) multiboot_header.o boot.o main.o console.o string.o asm_lib.o
+	$(LD) $(LD_FLAGS) $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o)
 
 ziggy.iso: kernel.bin
 	mkdir -p build/isofiles/boot/grub/
