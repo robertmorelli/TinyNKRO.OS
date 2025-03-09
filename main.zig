@@ -13,5 +13,5 @@ export fn main() void {
     var cr0: u32 = read_cr0();
     cr0 |= mmu.CR0_PG;
     write_cr0(cr0);
-    scr.showkeyboard();
+    scr.render_loop();
 }

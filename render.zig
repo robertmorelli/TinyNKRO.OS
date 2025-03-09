@@ -21,10 +21,8 @@ pub const c = enum(u8) {
     wh = 0xF,
 };
 const vga: *volatile [80][25]char = @ptrFromInt(0xb8000);
-pub fn render(x: u16, y: u16, d: u16) void {
-    vga[x][y] = d;
-}
-pub fn showkeyboard() void {
+
+pub fn render_loop() void {
     while (true) {
         for (0..80) |x| {
             for (0..25) |y| {

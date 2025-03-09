@@ -27,24 +27,19 @@ clean:
 %.o: %.zig
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) $< $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 
-ziggy: clean $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o)
-	# Link the kernel binary
+kernel.bin: clean $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o)
 	$(LD) $(LD_FLAGS) multiboot_header.o boot.o main.o console.o string.o asm_lib.o
 
-	# Prepare ISO structure and copy files
+ziggy.iso: kernel.bin
 	mkdir -p build/isofiles/boot/grub/
 	cp boot/grub.cfg build/isofiles/boot/grub/grub.cfg
 	cp kernel.bin build/isofiles/boot/
-
-	# Create bootable ISO image
 	$(GRUB_MKRESCUE) -o ziggy.iso build/isofiles
 
-qemu: ziggy
+qemu: ziggy.iso
 	qemu-system-i386 -cdrom ziggy.iso -vga std -no-reboot -nographic
 
-
-etch: ziggy
-	@echo "Checking if /dev/disk4 is external..."
+etch: ziggy.iso
 	@if (diskutil info /dev/disk4 | grep -q "Device Location: *External") && (diskutil info /dev/disk4 | grep -q "Protocol: *USB"); then \
 		echo "/dev/disk4 is confirmed external."; \
 		echo "Unmounting /dev/disk4..."; \
