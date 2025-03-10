@@ -5,7 +5,7 @@ COMMON_FLAGS   = -fPIC
 INCLUDE_FLAGS  = -I.
 ZIG_EXTRA_FLAGS= -fno-stack-check -Drelease-fast -O ReleaseFast
 
-# soon -> https://github.com/ziglang/zig/issues/8755
+# waiting on andrew kelly -> https://github.com/ziglang/zig/issues/8755
 # Linker and flags
 LD       = x86_64-elf-ld
 LD_FLAGS = -m elf_i386 -T linker.ld -o kernel.bin
@@ -24,17 +24,14 @@ clean:
 	rm -f *.bin
 	rm -f *.iso
 
-gdt.o:
-	zig cc -target x86-freestanding -mcpu=i386 -c gdt.c -o gdt.o -fno-sanitize=all
-
 %.o: %.s
 	$(ZIG) $(TARGET_FLAGS) $< $(COMMON_FLAGS)
 
 %.o: %.zig
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) $< $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 
-kernel.bin: clean $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o) gdt.o
-	$(LD) $(LD_FLAGS) $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o) gdt.o -o kernel.bin
+kernel.bin: clean $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o)
+	$(LD) $(LD_FLAGS) $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o) -o kernel.bin
 
 ziggy.iso: kernel.bin
 	mkdir -p build/isofiles/boot/grub/

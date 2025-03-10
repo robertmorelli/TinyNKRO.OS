@@ -1,9 +1,12 @@
-.global start
-.extern main
-.extern gdtdesc
-
 .equ SEG_KCODE, (1 << 3)
 .equ SEG_KDATA, (2 << 3)
+
+
+# see gdt.zig
+# 23 = @sizeOf(gdt) - 1
+gdtdesc:
+  .short  23
+  .long   gdt
 
 .section .bss
 .balign 4096
@@ -12,6 +15,7 @@ stack:
 
 .section .text
 .code32
+    .global start
 start:
     lgdt gdtdesc
     ljmp $SEG_KCODE, $reload_cs

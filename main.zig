@@ -1,17 +1,7 @@
-const CR0_PG: u32 = 0x80000000;
 const pts = @import("pagetables.zig");
 const scr = @import("render.zig");
-extern "C" fn read_cr0() u32;
-extern "C" fn write_cr0(u32) void;
-extern "C" fn write_cr3(u32) void;
-extern "C" fn halt() void;
-extern "C" fn write_gdt(*u32, i32) void;
-extern "C" fn print_hello_world() void;
 
-export fn main() noreturn {
-    write_cr3(@intFromPtr(&pts.entry_pgdir));
-    var cr0: u32 = read_cr0();
-    cr0 |= CR0_PG;
-    write_cr0(cr0);
+export fn main() void {
+    pts.use_pagetables();
     scr.render_loop();
 }
