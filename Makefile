@@ -16,6 +16,7 @@ GRUB_MKRESCUE = i686-elf-grub-mkrescue
 # sources
 ZIG_SRCS := $(wildcard *.zig)
 ASM_SRCS := $(wildcard *.s)
+C_SRCS := gdt.o
 
 clean:
 	rm -rf build
@@ -23,14 +24,17 @@ clean:
 	rm -f *.bin
 	rm -f *.iso
 
+gdt.o:
+	zig cc -target x86-freestanding -mcpu=i386 -c gdt.c -o gdt.o -fno-sanitize=all
+
 %.o: %.s
 	$(ZIG) $(TARGET_FLAGS) $< $(COMMON_FLAGS)
 
 %.o: %.zig
 	$(ZIG) $(TARGET_FLAGS) $(INCLUDE_FLAGS) $< $(ZIG_EXTRA_FLAGS) $(COMMON_FLAGS)
 
-kernel.bin: clean $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o)
-	$(LD) $(LD_FLAGS) $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o) -o kernel.bin
+kernel.bin: clean $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o) gdt.o
+	$(LD) $(LD_FLAGS) $(ASM_SRCS:.s=.o) $(ZIG_SRCS:.zig=.o) gdt.o -o kernel.bin
 
 ziggy.iso: kernel.bin
 	mkdir -p build/isofiles/boot/grub/
@@ -38,8 +42,12 @@ ziggy.iso: kernel.bin
 	cp kernel.bin build/isofiles/boot/
 	$(GRUB_MKRESCUE) -o ziggy.iso build/isofiles
 
-qemu: ziggy.iso
-	qemu-system-i386 -cdrom ziggy.iso -vga std -no-reboot -nographic
+
+zqemu: ziggy.iso
+	qemu-system-i386 -cdrom ziggy.iso -vga std -serial file:serial.log
+
+zqemu-nox: ziggy.iso
+	qemu-system-x86_64 -m 128 -cdrom ziggy.iso -vga std -no-reboot -nographic
 
 etch: ziggy.iso
 	@if (diskutil info /dev/disk4 | grep -q "Device Location: *External") && (diskutil info /dev/disk4 | grep -q "Protocol: *USB"); then \
