@@ -8,13 +8,13 @@ turn_on_paging:
 
     .globl write_cr3 # extern "C" fn write_cr3(*pagedir) void;
 write_cr3:
-    movl 4(%esp), %eax # Load the argument (val) from the stack.
-    movl %eax, %cr3    # Write the value into CR3.
+    movl 4(%esp), %eax
+    movl %eax, %cr3
     ret
 
     .globl halt # extern "C" fn halt() void;
 halt:
-    hlt # Halt the CPU
+    hlt
     ret
 
 
@@ -38,27 +38,20 @@ print_hello_world:
 
 
 # used in console.zig
-    .globl out_b # extern "C" fn out_b(a: u16, b: u8) void;
+    .globl out_b # extern "C" fn out_b(port: u16, data: u8) void;
 out_b:
-    movl 4(%esp), %edx   # Move first argument (port 'a') into EDX.
-    movl 8(%esp), %eax   # Move second argument (data 'b') into EAX.
+    movl 4(%esp), %edx
+    movl 8(%esp), %eax
     outb %al, %dx        # Output the low 8 bits (AL) to port in DX.
     ret
 
 
     .globl in_b # extern "C" fn in_b(a: u16) u8;
 in_b:
-    movl 4(%esp), %edx   # Load the first parameter (port) from the stack into EDX.
+    movl 4(%esp), %edx
     inb %dx, %al         # Read a byte from the port in DX into AL.
     movzbl %al, %eax     # Zero-extend AL into EAX.
-    ret                  # Return; the value is in EAX.
-
-    .globl in_w # extern "C" fn in_b(a: u16) u16;
-in_w:
-    movl 4(%esp), %edx   # Load the first parameter (port) from the stack into EDX.
-    inw %dx, %ax         # Read a byte from the port in DX into AL.
-    movzwl %ax, %eax     # Zero-extend AL into EAX.
-    ret                  # Return; the value is in EAX.
+    ret
 
 
     .globl micro_delay # extern "C" fn micro_delay() void;
