@@ -14,8 +14,7 @@ write_cr3:
 
     .globl halt # extern "C" fn halt() void;
 halt:
-    # Halt the CPU
-    hlt
+    hlt # Halt the CPU
     ret
 
 

@@ -17,6 +17,7 @@ stack:
 .code32
     .global start
 start:
+    movl $stack+4096, %esp
     lgdt gdtdesc
     ljmp $SEG_KCODE, $reload_cs
 reload_cs:
@@ -26,6 +27,4 @@ reload_cs:
     movw %ax, %es
     movw %ax, %fs
     movw %ax, %gs
-    movl $stack+4096, %esp
     call main
-    hlt
